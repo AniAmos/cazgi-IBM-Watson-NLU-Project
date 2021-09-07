@@ -4,7 +4,7 @@
   "description": "",
   "main": "sentimentAnalyzerServer.js",
   "scripts": {
-    "start": "node sentimentAnalyzerServer.js",
+    "start": "nodemon sentimentAnalyzerServer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,10 +16,10 @@
     "ibm-watson": "^6.1.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.6"
   },
   "engines": {
-    "node": "15.14.0",
-    "npm": "7.20.0"
+    "node": "12.0.0",
+    "npm": "5.1.0"
   }
 }
