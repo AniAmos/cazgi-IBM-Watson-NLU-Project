@@ -88,7 +88,7 @@ class App extends React.Component {
         <br/><br/>
         {this.state.innercomp}
         <br/>
-        <button className="btn-primary" onClick={this.sendForSentimentAnalysis}>Analyze Sentiment</button>
+        <button className="btn-primary" onClick={this.sendForSentimentAnalysis}>Analyze Sentimentttttt</button>
         <button className="btn-primary" onClick={this.sendForEmotionAnalysis}>Analyze Emotion</button>
         <br/>
             {this.state.sentimentOutput}

@@ -1,160 +1,158 @@
 const express = require('express');
 const app = new express();
-const dotenv=require('dotenv');
-dotenv.config();
 
 app.use(express.static('client'))
-
 const cors_app = require('cors');
 app.use(cors_app());
+
+const dotenv = require('dotenv');
+const { request } = require('express');
+dotenv.config();
+
+const api_key = process.env.API_KEY;
+const api_url = process.env.API_URL;
+
+function getNLUInstance() {    
+
+    const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
+    const { IamAuthenticator } = require('ibm-watson/auth');
+
+    const naturalLanguageUnderstanding = new NaturalLanguageUnderstandingV1({
+        version: '2020-08-01',
+        authenticator: new IamAuthenticator({
+            apikey: api_key,
+        }),
+        serviceUrl: api_url,
+    });
+    return naturalLanguageUnderstanding;
+}
 
 app.get("/",(req,res)=>{
     res.render('index.html');
   });
 
 app.get("/url/emotion", (req,res) => {
-
-     analyzeEmotionUrl(req.query.url,res);
-   // return res.send({"happy":"90","sad":"10"});
+ 
+const analyzeParams = {
+ "url": req.query.url,
+ "features": {
+ "entities": {
+ "emotion": true,
+ "sentiment": true,
+ "limit": 1
+ },
+ "keywords": {
+ "emotion": true,
+ "sentiment": true,
+ "limit": 1
+ }
+ }
+ }
+ 
+ const natLanUnder = getNLUInstance();
+ 
+ natLanUnder.analyze(analyzeParams)
+ .then(analysisResults => {
+ console.log(analysisResults);
+ console.log(JSON.stringify(analysisResults.result.keywords[0].emotion,null,2));
+ return res.send(analysisResults.result.keywords[0].emotion,null,2);
+ })
+ .catch(err => {
+ return res.send("Could not do desired operation "+err);
+ });
 });
 
-app.get("/url/sentiment", (req,res) => {
-  //  return res.send("url sentiment for "+req.query.url);
-   //  analyzeEmotionUrl(req.query.url,res);
-    analyzeSentimentUrl(req.query.url,res);
+
+app.get("/url/sentiment", (req,res) => { 
+const analyzeParams = {
+ "url": req.query.url,
+ "features": {
+ "entities": {
+ "sentiment": true,
+ "emotion": true,
+ "limit": 1
+ },
+ "keywords": {
+ "sentiment": true,
+ "emotion": true,
+ "limit": 1
+ }
+ }
+ }
+ 
+ const natLanUnder = getNLUInstance();
+ 
+ natLanUnder.analyze(analyzeParams)
+ .then(analysisResults => {
+ console.log(analysisResults);
+ console.log(JSON.stringify(analysisResults.result.keywords[0].sentiment,null,2));
+ return res.send(analysisResults.result.keywords[0].sentiment,null,2);
+ })
+ .catch(err => {
+ return res.send("Could not do desired operation "+err);
+ });
 });
 
-app.get("/text/emotion", (req,res) => {
-   // return res.send({"happy":"10","sad":"90"});
-  analyzeEmotionText(req.query.text,res);
+app.get("/text/emotion", (req,res) => { 
+const analyzeParams = {
+ "text": req.query.text,
+ "features": {
+ "entities": {
+ "emotion": true,
+ "sentiment": true,
+ "limit": 1
+ },
+ "keywords": {
+ "emotion": true,
+ "sentiment": true,
+ "limit": 1
+ }
+ }
+ }
+ 
+ const natLanUnder = getNLUInstance();
+ 
+ natLanUnder.analyze(analyzeParams)
+ .then(analysisResults => {
+ console.log(analysisResults);
+ console.log(JSON.stringify(analysisResults.result.keywords[0].emotion,null,2));
+ return res.send(analysisResults.result.keywords[0].emotion,null,2);
+ })
+ .catch(err => {
+ return res.send("Could not do desired operation "+err);
+ });
 });
 
-app.get("/text/sentiment", (req,res) => {
- //   return res.send("text sentiment for "+req.query.text);
-    analyzeSentimentText(req.query.text,res);
+app.get("/text/sentiment", (req,res) => { 
+const analyzeParams = {
+ "text": req.query.text,
+ "features": {
+ "entities": {
+ "emotion": true,
+ "sentiment": true,
+ "limit": 1
+ },
+ "keywords": {
+ "emotion": true,
+ "sentiment": true,
+ "limit": 1
+ }
+ }
+ }
+ 
+ const natLanUnder = getNLUInstance();
+ 
+ natLanUnder.analyze(analyzeParams)
+ .then(analysisResults => {
+ console.log(analysisResults);
+ console.log(JSON.stringify(analysisResults.result.keywords[0].sentiment,null,2));
+ return res.send(analysisResults.result.keywords[0].sentiment,null,2);
+ })
+ .catch(err => {
+ return res.send("Could not do desired operation "+err);
+ });
 });
 
 let server = app.listen(8080, () => {
     console.log('Listening', server.address().port)
 })
-
-function getNLUInstance() {
-let api_key = process.env.API_KEY; 
-let api_url = process.env.API_URL;
-const NaturallanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
-const { IamAuthenticator } = require('ibm-watson/auth');
-
-const naturalLanguageUnderstanding = new NaturallanguageUnderstandingV1({
-
-version: '2020-08-01',
-
-authenticator: new IamAuthenticator({
-
-apikey: api_key,
-
-}),
-
-serviceUrl: api_url,
-
-});
-
-return naturalLanguageUnderstanding;
-
-}
-
-
-
-
-function analyzeEmotionUrl(url,res){
-    const naturalLanguageUnderstanding= getNLUInstance();
-    const analyzeParams = {
-  'url':url,
-  'features': {
-    'emotion': {
-    }
-  }
-};
-naturalLanguageUnderstanding.analyze(analyzeParams)
-  .then(analysisResults => {
-    console.log(JSON.stringify(analysisResults, null, 2));
-   // return analysisResults.result.emotion.document.emotion;
-   res.send(analysisResults.result.emotion.document.emotion);
-  })
-  .catch(err => {
-    console.log('error:', err);
-  });
-
-}
-
-
-function analyzeEmotionText(sampleText,res){
-    const naturalLanguageUnderstanding= getNLUInstance();
-    const analyzeParams = {
-  'html':sampleText,
-  'features': {
-    'emotion': {     
-    }
-  }
-};
-naturalLanguageUnderstanding.analyze(analyzeParams)
-  .then(analysisResults => {
-    console.log(JSON.stringify(analysisResults, null, 2));
-   // return analysisResults.result.emotion.document.emotion;
-   res.send(analysisResults.result.emotion.document.emotion);
-  })
-  .catch(err => {
-    console.log('error:', err);
-  });
-
-}
-
-
-function analyzeSentimentText(sampleText,res){
-    const naturalLanguageUnderstanding= getNLUInstance();
-      
-   const analyzeParams = {
-      'html': sampleText,
-       'features': {
-        'sentiment': {
-          
-        }
-       }
-    };
-
-    naturalLanguageUnderstanding.analyze(analyzeParams)
-      .then(analysisResults => {
-        console.log(JSON.stringify(analysisResults, null, 2));
-        //.result.entities[0].sentiment
-         res.send(analysisResults.result.sentiment.document.label);
-        
-      })
-      .catch(err => {
-          
-        console.log('error:', err);
-         res.send("neutral");
-      });
-
-}
-function analyzeSentimentUrl(url,res){
-    const naturalLanguageUnderstanding= getNLUInstance();
-      
-   const analyzeParams = {
-      'url': url,
-       'features': {
-        'sentiment': {
-          
-        }
-       }
-    };
-
-    naturalLanguageUnderstanding.analyze(analyzeParams)
-      .then(analysisResults => {
-        console.log(JSON.stringify(analysisResults, null, 2));
-         res.send(analysisResults.result.sentiment.document.label);
-      })
-      .catch(err => {
-        console.log('error:', err);
-         res.send("neutral");
-      });
-
-}
